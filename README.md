@@ -71,3 +71,7 @@ What the settings do are described here:
 | region                   | The region to specify when initializing the AWS SNS and SQS clients.                                                                                                                                                                                                                                                         |
 | consuming_sqs_queue_url  | The SQS Queue URL for which you want Sensu to consume from.                                                                                                                                                                                                                                                                  |
 | publishing_sns_topic_arn | The SNS Topic ARN for which you want Sensu to publish messages to.                                                                                                                                                                                                                                                           |
+
+## License
+
+`sensu-transport-snssqs` is released under the Apache 2.0 License, full copy of which is inside of the `LICENSE` file.
