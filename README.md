@@ -1,6 +1,6 @@
 # sensu-transport-snssqs
 
-`sensu-transport-snssqs` is a Sensu transport that produces messages over Amazon SNS and consumes messages from Amazon SQS, providing simplified monitoring of AWS environments using Sensu. 
+`sensu-transport-snssqs` is a Sensu transport that produces messages over Amazon SNS and consumes messages from Amazon SQS, providing simplified monitoring of AWS environments using Sensu.
 
 Messages flow from hosts onto an Amazon SNS topic. It is up to the operator to ensure that messages from the SNS topic flow to one SQS queue for consumption by the Sensu server.
 
@@ -13,6 +13,8 @@ Messages flow only one way: from the hosts being monitored to the Sensu server. 
 ### Caveat
 
 Subscription-based checks are not supported. Sensu subscriptions require the transport to be two-way: The Sensu server must be able to send a message through the transport to a specific host. SQS has no way of filtering messages in an SQS queue. Therefore, to use this transport, you must only use `standalone` checks.
+
+This transport assumes that SNS is publishing to your SQS queue in "Raw" mode.
 
 ## Installation
 
