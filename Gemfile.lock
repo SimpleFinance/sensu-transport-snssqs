@@ -1,0 +1,29 @@
+PATH
+  remote: .
+  specs:
+    sensu-transport-sqs (1.0)
+      aws-sdk
+      eventmachine
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    aws-sdk (2.1.0)
+      aws-sdk-resources (= 2.1.0)
+    aws-sdk-core (2.1.0)
+      jmespath (~> 1.0)
+    aws-sdk-resources (2.1.0)
+      aws-sdk-core (= 2.1.0)
+    eventmachine (1.0.7)
+    jmespath (1.0.2)
+      multi_json (~> 1.0)
+    multi_json (1.11.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  sensu-transport-sqs!
+
+BUNDLED WITH
+   1.10.3
