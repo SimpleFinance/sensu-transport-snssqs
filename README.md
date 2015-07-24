@@ -10,11 +10,11 @@ Messages flow from hosts onto an Amazon SNS topic. It is up to the operator to e
 
 Messages flow only one way: from the hosts being monitored to the Sensu server. In this diagram, there is an SNS topic created per environment. Hosts within these environments publish messages onto their environment's SNS topic. All of these SNS topics place messages onto one SQS queue. This singular SQS queue is used by our Sensu cluster to act on messages.
 
-### Caveat
+### Caveats
 
-Subscription-based checks are not supported. Sensu subscriptions require the transport to be two-way: The Sensu server must be able to send a message through the transport to a specific host. SQS has no way of filtering messages in an SQS queue. Therefore, to use this transport, you must only use `standalone` checks.
+- Subscription-based checks are not supported. Sensu subscriptions require the transport to be two-way: The Sensu server must be able to send a message through the transport to a specific host. SQS has no way of filtering messages in an SQS queue. Therefore, to use this transport, you must only use `standalone` checks.
 
-This transport assumes that SNS is publishing to your SQS queue in "Raw" mode.
+- This transport assumes that SNS is publishing to your SQS queue in "Raw" mode.
 
 ## Installation
 
