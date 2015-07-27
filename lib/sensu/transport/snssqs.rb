@@ -86,7 +86,7 @@ module Sensu
             queue_url: @settings[:consuming_sqs_queue_url],
             receipt_handle: info.receipt_handle,
           )
-          statsd_incr('message.deleted')
+          statsd_incr("sqs.#{@settings[:consuming_sqs_queue_url]}.message.deleted")
           callback.call(info) if callback
         }
       end
@@ -125,7 +125,7 @@ module Sensu
           message: msg,
           message_attributes: attributes
         )
-        statsd_incr('message.published')
+        statsd_incr("sns.#{@settings[:publishing_sns_topic_arn]}.message.published")
         callback.call({ :response => resp }) if callback
       end
 
