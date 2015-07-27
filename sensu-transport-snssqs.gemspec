@@ -6,4 +6,5 @@ Gem::Specification.new do |g|
   g.homepage = 'https://github.com/SimpleFinance/sensu-transport-snssqs'
   g.add_dependency('aws-sdk')
   g.add_dependency('eventmachine')
+  g.add_dependency('statsd-ruby')
 end
