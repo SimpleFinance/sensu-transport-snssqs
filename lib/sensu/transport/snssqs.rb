@@ -72,7 +72,6 @@ module Sensu
               else
                 @results_callback.call(msg, msg.body)
               end
-              statsd_incr('message.processed')
               iter.next
             end
           }
@@ -87,6 +86,7 @@ module Sensu
             queue_url: @settings[:consuming_sqs_queue_url],
             receipt_handle: info.receipt_handle,
           )
+          statsd_incr('message.deleted')
           callback.call(info) if callback
         }
       end
