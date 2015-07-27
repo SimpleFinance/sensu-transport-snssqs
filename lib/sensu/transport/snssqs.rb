@@ -1,5 +1,6 @@
 require 'sensu/transport/base'
 require 'aws-sdk'
+require 'statsd-ruby'
 
 module Sensu
   module Transport
@@ -25,6 +26,20 @@ module Sensu
         @keepalives_callback = proc {}
         @sqs = Aws::SQS::Client.new(region: @settings[:region])
         @sns = Aws::SNS::Client.new(region: @settings[:region])
+
+        # connect to statsd, if necessary
+        @statsd = nil
+        if @settings[:statsd_addr] != ""
+          pieces = @settings[:statsd_addr].split(':')
+          @statsd = Statsd.new(pieces[0], pieces[1].to_i).tap { |sd|
+            sd.namespace = @settings[:statsd_namespace]
+          }
+          @statsd_sample_rate = @settings[:statsd_sample_rate].to_f
+        end
+      end
+
+      def statsd_incr(stat)
+        @statsd.increment(stat, @statsd_sample_rate) unless @statsd.nil?
       end
 
       # subscribe will begin "subscribing" to the consuming sqs queue.
@@ -57,6 +72,7 @@ module Sensu
               else
                 @results_callback.call(msg, msg.body)
               end
+              statsd_incr('message.processed')
               iter.next
             end
           }
@@ -109,6 +125,7 @@ module Sensu
           message: msg,
           message_attributes: attributes
         )
+        statsd_incr('message.published')
         callback.call({ :response => resp }) if callback
       end
 
