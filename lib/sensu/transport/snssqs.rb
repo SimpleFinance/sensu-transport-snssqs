@@ -15,6 +15,16 @@ module Sensu
       def initialize
         @connected = false
         @subscribing = false
+
+        # as of sensu 0.23.0 we need to call succeed when we have
+        # successfully connected to SQS.
+        #
+        # we already have our own logic to maintain the connection to
+        # SQS, so we can always say we're connected.
+        #
+        # See:
+        # https://github.com/sensu/sensu/blob/cdc25b29169ef2dcd2e056416eab0e83dbe000bb/CHANGELOG.md#0230---2016-04-04
+        succeed()
       end
 
       def connected?; @connected; end
