@@ -52,6 +52,17 @@ module Sensu
         @statsd.increment(stat, @statsd_sample_rate) unless @statsd.nil?
       end
 
+      def statsd_time(stat)
+        # always measure + run the block, but only if @statsd is set
+        # do we actually report it.
+        start = Time.now
+        result = yield
+        if !@statsd.nil?
+          @statsd.timing(stat, ((Time.now - start) * 1000).round(5), @statsd_sample_rate)
+        end
+        result
+      end
+
       # subscribe will begin "subscribing" to the consuming sqs queue.
       #
       # What this really means is that we will start polling for
@@ -77,11 +88,13 @@ module Sensu
         unless @subscribing
           do_all_the_time {
             EM::Iterator.new(receive_messages, 10).each do |msg, iter|
-              if msg.message_attributes[PIPE_STR].string_value == KEEPALIVES_STR
-                @keepalives_callback.call(msg, msg.body)
-              else
-                @results_callback.call(msg, msg.body)
-              end
+              statsd_time("sqs.#{@settings[:consuming_sqs_queue_url]}.process_timing") {
+                if msg.message_attributes[PIPE_STR].string_value == KEEPALIVES_STR
+                  @keepalives_callback.call(msg, msg.body)
+                else
+                  @results_callback.call(msg, msg.body)
+                end
+              }
               iter.next
             end
           }
