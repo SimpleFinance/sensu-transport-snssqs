@@ -1,6 +1,6 @@
 Gem::Specification.new do |g|
   g.name = 'sensu-transport-snssqs'
-  g.version = '1.0'
+  g.version = '2.0'
   g.summary = ''
   g.authors = ''
   g.homepage = 'https://github.com/SimpleFinance/sensu-transport-snssqs'
