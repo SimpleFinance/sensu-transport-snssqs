@@ -39,7 +39,7 @@ module Sensu
 
         # connect to statsd, if necessary
         @statsd = nil
-        if @settings[:statsd_addr] != ""
+        if !@settings[:statsd_addr].nil? and @settings[:statsd_addr] != ""
           pieces = @settings[:statsd_addr].split(':')
           @statsd = Statsd.new(pieces[0], pieces[1].to_i).tap { |sd|
             sd.namespace = @settings[:statsd_namespace]
