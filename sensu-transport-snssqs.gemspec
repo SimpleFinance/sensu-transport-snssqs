@@ -1,6 +1,6 @@
 Gem::Specification.new do |g|
   g.name = 'sensu-transport-snssqs'
-  g.version = '2.0.3'
+  g.version = '2.0.4'
   g.summary = 'Sensu transport over Amazon SNS & SQS'
   g.authors = 'Tom Wanielista'
   g.files = ['lib/sensu/transport/snssqs.rb']
