@@ -65,6 +65,10 @@ module Sensu
 
       # subscribe will begin "subscribing" to the consuming sqs queue.
       #
+      # This method is intended for use by the Sensu server; fanout
+      # subscriptions initiated by the Sensu client process are
+      # treated as a no-op.
+      #
       # What this really means is that we will start polling for
       # messages from the SQS queue, and, depending on the message
       # type, it will call the appropriate callback.
@@ -77,6 +81,11 @@ module Sensu
       #
       # "funnel" and "type" parameters are completely ignored.
       def subscribe(type, pipe, funnel = nil, options = {}, &callback)
+        if type == :fanout
+          self.logger.debug("skipping unsupported fanout subscription type=#{type}, pipe=#{pipe}, funnel=#{funnel}")
+          return
+        end
+
         self.logger.info("subscribing to type=#{type}, pipe=#{pipe}, funnel=#{funnel}")
 
         if pipe == KEEPALIVES_STR
