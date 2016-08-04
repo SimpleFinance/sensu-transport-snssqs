@@ -1,0 +1,4 @@
+## [2.0.3] - 2016-08-04
+
+- no-op :fanout type subscriptions, they are used by the client, and
+  unsupported by this transport.
