@@ -98,10 +98,12 @@ module Sensu
           do_all_the_time {
             EM::Iterator.new(receive_messages, 10).each do |msg, iter|
               statsd_time("sqs.#{@settings[:consuming_sqs_queue_url]}.process_timing") {
-                if msg.message_attributes[PIPE_STR].string_value == KEEPALIVES_STR
-                  @keepalives_callback.call(msg, msg.body)
-                else
-                  @results_callback.call(msg, msg.body)
+                if msg.key?("message_attributes")
+                  if msg.message_attributes[PIPE_STR].string_value == KEEPALIVES_STR
+                    @keepalives_callback.call(msg, msg.body)
+                  else
+                    @results_callback.call(msg, msg.body)
+                  end
                 end
               }
               iter.next
