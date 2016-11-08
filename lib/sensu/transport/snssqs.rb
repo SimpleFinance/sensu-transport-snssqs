@@ -34,6 +34,8 @@ module Sensu
         @connected = true
         @results_callback = proc {}
         @keepalives_callback = proc {}
+        # Sensu Windows install does not include a valid cert bundle for AWS
+        Aws.use_bundled_cert! if Gem.win_platform?
         @sqs = Aws::SQS::Client.new(region: @settings[:region])
         @sns = Aws::SNS::Client.new(region: @settings[:region])
 
