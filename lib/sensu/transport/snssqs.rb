@@ -53,6 +53,7 @@ module Sensu
       end
 
       def statsd_time(stat)
+        return if @statsd.nil?
         # always measure + run the block, but only if @statsd is set
         # do we actually report it.
         start = Time.now
