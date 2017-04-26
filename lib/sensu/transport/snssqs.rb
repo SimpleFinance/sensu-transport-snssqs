@@ -34,9 +34,20 @@ module Sensu
         @connected = true
         @results_callback = proc {}
         @keepalives_callback = proc {}
-        @sqs = Aws::SQS::Client.new(region: @settings[:region])
-        @sns = Aws::SNS::Client.new(region: @settings[:region])
-
+        Aws.use_bundled_cert! if Gem.win_platform?
+        if @settings[:access_key_id].nil?
+          @sqs = Aws::SQS::Client.new(region: @settings[:region])
+          @sns = Aws::SNS::Client.new(region: @settings[:region])
+        else
+          @sqs = Aws::SQS::Client.new(region: @settings[:region],
+                                      access_key_id: @settings[:access_key_id],
+                                      secret_access_key: @settings[:secret_access_key]
+                                    )
+          @sns = Aws::SNS::Client.new(region: @settings[:region],
+                                      access_key_id: @settings[:access_key_id],
+                                      secret_access_key: @settings[:secret_access_key]
+                                    )
+        end
         # connect to statsd, if necessary
         @statsd = nil
         if !@settings[:statsd_addr].nil? and @settings[:statsd_addr] != ""
@@ -98,12 +109,10 @@ module Sensu
           do_all_the_time {
             EM::Iterator.new(receive_messages, 10).each do |msg, iter|
               statsd_time("sqs.#{@settings[:consuming_sqs_queue_url]}.process_timing") {
-                if msg.key?("message_attributes")
-                  if msg.message_attributes[PIPE_STR].string_value == KEEPALIVES_STR
-                    @keepalives_callback.call(msg, msg.body)
-                  else
-                    @results_callback.call(msg, msg.body)
-                  end
+                if msg.message_attributes[PIPE_STR].string_value == KEEPALIVES_STR
+                  @keepalives_callback.call(msg, msg.body)
+                else
+                  @results_callback.call(msg, msg.body)
                 end
               }
               iter.next
@@ -175,7 +184,19 @@ module Sensu
             wait_time_seconds: @settings[:wait_time_seconds],
             max_number_of_messages: @settings[:max_number_of_messages],
           )
-          resp.messages
+          resp.messages.map do |msg|
+            if !msg.key? 'message_attributes'
+              tmp_body = JSON.parse msg.body
+              msg.body = tmp_body['Message']
+              msg.message_attributes = {}
+              tmp_body['MessageAttributes'].each do |name, value|
+                msg.message_attributes[name] = Aws::SQS::Types::MessageAttributeValue.new
+                msg.message_attributes[name].string_value = value['Value']
+                msg.message_attributes[name].data_type = 'String'
+              end
+            end
+            msg
+          end
         rescue Aws::SQS::Errors::ServiceError => e
           self.logger.info(e)
         end
