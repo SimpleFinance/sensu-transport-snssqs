@@ -1,3 +1,8 @@
+## [2.0.4] - 2016-11-08
+
+- Forked to -ng gem to relax contribution guidelines
+- Fix windows client via use of AWS bundled SSL certs
+
 ## [2.0.4] - 2016-08-04
 
 - no-op :fanout type subscriptions, they are used by the client, and
