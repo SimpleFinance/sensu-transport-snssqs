@@ -1,8 +1,10 @@
-# sensu-transport-snssqs
+# sensu-transport-snssqs-ng
 
-`sensu-transport-snssqs` is a Sensu transport that produces messages over Amazon SNS and consumes messages from Amazon SQS, providing simplified monitoring using Sensu.
+`sensu-transport-snssqs-ng` is a Sensu transport that produces messages over Amazon SNS and consumes messages from Amazon SQS, providing simplified monitoring using Sensu.
 
 Messages flow from hosts onto an Amazon SNS topic. It is up to the operator to ensure that messages from the SNS topic flow to one SQS queue for consumption by the Sensu server.
+
+This project is forked from the [the Simple team's project](https://github.com/SimpleFinance/sensu-transport-snssqs) to add additional community-generated enhancements. It is intended to provide a superset of the upstream features.
 
 ### Architecture
 
@@ -27,7 +29,7 @@ To use this `snssqs` transport, this gem must be in your Sensu installation's ru
 If you're installing Sensu via Chef, you can use the `sensu_gem` resource to ensure the gem is in Sensu's ruby include path:
 
 ```
-sensu_gem 'sensu-transport-snssqs' do
+sensu_gem 'sensu-transport-snssqs-ng' do
   action :install
 end
 ```
@@ -35,7 +37,7 @@ end
 Otherwise, if you're running Sensu via bundler, add this line to your Sensu installation's Gemfile:
 
 ```
-gem 'sensu-transport-snssqs'
+gem 'sensu-transport-snssqs-ng'
 ```
 
 That should place this gem into the include path.
@@ -80,4 +82,4 @@ The following table lists possible settings and their descriptions. The values s
 | statsd_sample_rate       | Set the sample rate for all statsd operations. This should be a string with a value between 0 and 1.0.                                                                                                                                                                                                                                |
 ## License
 
-`sensu-transport-snssqs` is released under the Apache 2.0 License, full copy of which is inside of the `LICENSE` file.
+`sensu-transport-snssqs-ng` is released under the Apache 2.0 License, full copy of which is inside of the `LICENSE` file.
