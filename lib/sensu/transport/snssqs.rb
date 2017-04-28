@@ -184,18 +184,32 @@ module Sensu
             wait_time_seconds: @settings[:wait_time_seconds],
             max_number_of_messages: @settings[:max_number_of_messages],
           )
-          resp.messages.map do |msg|
-            if !msg.key? 'message_attributes'
-              tmp_body = JSON.parse msg.body
-              msg.body = tmp_body['Message']
-              msg.message_attributes = {}
-              tmp_body['MessageAttributes'].each do |name, value|
-                msg.message_attributes[name] = Aws::SQS::Types::MessageAttributeValue.new
-                msg.message_attributes[name].string_value = value['Value']
-                msg.message_attributes[name].data_type = 'String'
+          resp.messages.select do |msg|
+            # switching whether to transform the message based on the existance of message_attributes
+            # if this is a raw SNS message, it exists in the root of the message and no conversion is needed
+            # if it doesn't, it is an encapsulated messsage (meaning the SNS message is a stringified JSON in the body of the SQS message)
+            begin
+              if !msg.key? 'message_attributes'
+                # extracting original SNS message
+                tmp_body = JSON.parse msg.body
+                # if there is no Message, this isn't a SNS message and something has gone terribly wrong
+                next if tmp_body.key? 'Message'
+                # replacing the body with the SNS message (as it would be in a raw delivered SNS-SQS message)
+                msg.body = tmp_body['Message']
+                msg.message_attributes = {}
+                # discarding messages without attributes, since this would lead to an exception in subscribe
+                next if tmp_body.key? 'MessageAttributes'
+                # parsing the message_attributes
+                tmp_body['MessageAttributes'].each do |name, value|
+                  msg.message_attributes[name] = Aws::SQS::Types::MessageAttributeValue.new
+                  msg.message_attributes[name].string_value = value['Value']
+                  msg.message_attributes[name].data_type = 'String'
+                end
               end
+              msg
+            rescue JSON::JSONError => e
+              self.logger.info(e)
             end
-            msg
           end
         rescue Aws::SQS::Errors::ServiceError => e
           self.logger.info(e)
