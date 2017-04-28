@@ -34,20 +34,16 @@ module Sensu
         @connected = true
         @results_callback = proc {}
         @keepalives_callback = proc {}
+        # Sensu Windows install does not include a valid cert bundle for AWS
         Aws.use_bundled_cert! if Gem.win_platform?
-        if @settings[:access_key_id].nil?
-          @sqs = Aws::SQS::Client.new(region: @settings[:region])
-          @sns = Aws::SNS::Client.new(region: @settings[:region])
-        else
-          @sqs = Aws::SQS::Client.new(region: @settings[:region],
-                                      access_key_id: @settings[:access_key_id],
-                                      secret_access_key: @settings[:secret_access_key]
-                                    )
-          @sns = Aws::SNS::Client.new(region: @settings[:region],
-                                      access_key_id: @settings[:access_key_id],
-                                      secret_access_key: @settings[:secret_access_key]
-                                    )
+        aws_client_settings = {region: @settings[:region]}
+        unless @settings[:access_key_id].nil?
+          aws_client_settings[:access_key_id] = @settings[:access_key_id]
+          aws_client_settings[:secret_access_key] = @settings[:secret_access_key]
         end
+        @sqs = Aws::SQS::Client.new aws_client_settings
+        @sns = Aws::SNS::Client.new aws_client_settings
+
         # connect to statsd, if necessary
         @statsd = nil
         if !@settings[:statsd_addr].nil? and @settings[:statsd_addr] != ""
